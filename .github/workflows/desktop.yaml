@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: choco install -y ninja cmake
       - run: flutter pub get
-      - run: flutter build windows --release --target-platform windows-x64
+      - run: flutter build windows --release
       - name: Create archive
         run: 7z a fluffychat-windows-x64.zip build\windows\x64\release\bundle
       - name: Upload artifact
@@ -64,7 +64,7 @@ jobs:
       - name: Install dependencies
         run: brew install ninja cmake
       - run: flutter pub get
-      - run: flutter build macos --release --target-platform darwin-x64
+      - run: flutter build macos --release
       - name: Create archive
         run: tar -czf fluffychat-macos-x64.tar.gz -C build/macos/Build/Products/Release/ .
       - name: Upload artifact
