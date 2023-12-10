@@ -16,16 +16,15 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           cache: true
       - run: flutter pub get
-      - name: Prepare web
-        run: ./scripts/prepare-web.sh
-      - name: Build Release Web
-        run: flutter build web --dart-define=FLUTTER_WEB_CANVASKIT_URL=canvaskit/ --release --source-maps --base-href "/web/"
       - name: Prepare config
         run: |
           cp config.sample.json config.json
           sed -i 's/matrix.org/mtx.codeword.info/g' config.json
           sed -i 's/fluffychat.im\/web/fluffy.codeword.info/g' config.json
-          mv config.json build/web/config.json
+      - name: Prepare web
+        run: ./scripts/prepare-web.sh
+      - name: Build Release Web
+        run: flutter build web --dart-define=FLUTTER_WEB_CANVASKIT_URL=canvaskit/ --release --source-maps --base-href "/web/"
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
