@@ -1,0 +1,35 @@
+name: Wrangler
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cat .github/workflows/versions.env >> $GITHUB_ENV
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - run: flutter pub get
+      - name: Prepare web
+        run: ./scripts/prepare-web.sh
+      - name: Build Release Web
+        run: flutter build web --dart-define=FLUTTER_WEB_CANVASKIT_URL=canvaskit/ --release --source-maps --base-href "/web/"
+      - name: Prepare config
+        run: |
+          cp config.sample.json config.json
+          sed -i 's/matrix.org/mtx.codeword.info/g' config.json
+          sed -i 's/fluffychat.im\/web/fluffy.codeword.info/g' config.json
+          mv config.json build/web/config.json
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
+          directory: build/web
